@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XSS Playground - Level 1</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-2xl mx-auto p-8 bg-gray-800 rounded-2xl shadow-2xl">
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-cyan-400">XSS Playground</h1>
+            <p class="text-gray-400 mt-2">Level 1: Reflected XSS</p>
+        </div>
+
+        <!-- Input Form -->
+        <div class="mb-6">
+            <form id="comment-form" class="flex flex-col sm:flex-row gap-4">
+                <input 
+                    type="text" 
+                    id="comment-input" 
+                    name="comment" 
+                    class="flex-grow bg-gray-700 text-white border-2 border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition"
+                    placeholder="Enter your name..."
+                >
+                <button 
+                    type="submit"
+                    class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-6 rounded-lg transition duration-300 ease-in-out transform hover:scale-105"
+                >
+                    Submit
+                </button>
+            </form>
+        </div>
+
+        <!-- Display Area -->
+        <div class="bg-gray-900 p-6 rounded-lg border-2 border-dashed border-gray-700">
+            <h2 class="text-2xl font-semibold mb-4 text-gray-300">Welcome Message:</h2>
+            <div id="output" class="text-lg text-gray-200">
+                <!-- User input will be displayed here -->
+                <p>Hello, Guest!</p>
+            </div>
+        </div>
+
+        <!-- Explanation Section -->
+        <div class="mt-8 text-left">
+             <h3 class="text-xl font-semibold text-cyan-400 mb-2">What's Happening Here?</h3>
+             <p class="text-gray-400">
+                This page takes whatever you type into the input box and displays it directly on the page as a "welcome message".
+                This is a simple example of a "Reflected" Cross-Site Scripting (XSS) vulnerability. The input is "reflected" back to the user without being cleaned or sanitized.
+             </p>
+             <h3 class="text-xl font-semibold text-cyan-400 mt-4 mb-2">Try This:</h3>
+             <p class="text-gray-400">
+                Instead of your name, try entering the following into the input box and clicking submit:
+             </p>
+             <pre class="bg-gray-900 text-cyan-300 p-3 rounded-md mt-2 text-sm"><code>&lt;script&gt;alert('You have been hacked!');&lt;/script&gt;</code></pre>
+             <p class="text-gray-400 mt-2">
+                You'll see an alert box pop up. This is because the browser doesn't know the difference between the page's original HTML and the new HTML you just injected. It executes the script because you told it to!
+                In a real attack, this script could be used to steal your cookies, redirect you to a malicious website, or capture your keystrokes.
+             </p>
+        </div>
+    </div>
+
+    <script>
+        // --- SCRIPT SECTION ---
+
+        // Get the form and output elements from the DOM
+        const commentForm = document.getElementById('comment-form');
+        const outputDiv = document.getElementById('output');
+        const commentInput = document.getElementById('comment-input');
+
+        // Listen for the form submission event
+        commentForm.addEventListener('submit', (event) => {
+            // Prevent the form from actually submitting and reloading the page
+            event.preventDefault();
+
+            // Get the user's input from the text box
+            const userInput = commentInput.value;
+
+            //
+            // --- THE VULNERABLE PART ---
+            // The user's input is taken directly and inserted into the page's HTML.
+            // The browser cannot distinguish between the intended HTML of the page
+            // and the HTML/script injected by the user. It will render/execute
+            // whatever is provided.
+            // This is the core of the XSS vulnerability.
+            //
+            outputDiv.innerHTML = `<p>Hello, ${userInput}!</p>`;
+
+            // Clear the input for the next submission
+            // commentInput.value = ''; 
+        });
+    </script>
+</body>
+</html>
